@@ -4,16 +4,27 @@
 
 In this HowTo we are describing the steps to set up a [Jenkins](https://jenkins.io/) server connected to a Kubernetes Cluster to receive the deployments.
 
-## Requisites
+## 1. Architecture Overview
 
-### Azure Resources
+![General Architecture](/images/general-architecture.JPG)
 
+The image above is a generic architecture overview that can be implemented using different technologies and services. These are the services used for implementation:
+
+- **GitHub** as the git repository;
+- **Jenkins** as the build/release automation orchestrator server;
+- **Azure Container Registry** as the container repository;
+- **Azure Kubernetes Service (AKS)** as container orchestrator.
+
+## 2. Implementation
+### 2.1. Requisites
+
+Azure resources:
 + Jenkins VM
 + Service Principal
 + Azure Container Registry
 + AKS (Kubernetes Cluster)
 
-### Server Dependencies
+Server Dependencies:
 
 + Docker
 + Kubectl
