@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "value": "jenkinsupskillingcluster"
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "dnsPrefix": {
+            "value": "jenkinsupskillingcluster"
+        },
+        "agentCount": {
+            "value": 3
+        },
+        "agentVMSize": {
+            "value": "Standard_DS1_v2"
+        },
+        "servicePrincipalClientId": {
+            "value": null
+        },
+        "servicePrincipalClientSecret": {
+            "value": null
+        },
+        "kubernetesVersion": {
+            "value": "1.9.6"
+        },
+        "workspaceName": {
+            "value": "DefaultWorkspace-b602481d-6ae4-4613-911c-5b1439bdddf8-EUS"
+        },
+        "omsWorkspaceId": {
+            "value": "/subscriptions/b602481d-6ae4-4613-911c-5b1439bdddf8/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-b602481d-6ae4-4613-911c-5b1439bdddf8-EUS"
+        },
+        "workspaceRegion": {
+            "value": "eastus"
+        },
+        "enableHttpApplicationRouting": {
+            "value": true
+        },
+        "networkPlugin": {
+            "value": "kubenet"
+        }
+    }
+}

@@ -1,0 +1,66 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "value": null
+        },
+        "adminUserName": {
+            "value": "jenkinsuser"
+        },
+        "authenticationType": {
+            "value": "password"
+        },
+        "dnsPrefix": {
+            "value": "jenkinsupskill"
+        },
+        "publicIPName": {
+            "value": "jenkins-pip"
+        },
+        "publicIPNewOrExisting": {
+            "value": "new"
+        },
+        "publicIPResourceGroup": {
+            "value": "jenkinsupskilling"
+        },
+        "storageAccountType": {
+            "value": "Standard_LRS"
+        },
+        "vmName": {
+            "value": "jenkins"
+        },
+        "vmSize": {
+            "value": "Standard_DS2_v2_Promo"
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "jenkinsReleaseType": {
+            "value": "LTS"
+        },
+        "spType": {
+            "value": "msi"
+        },
+        "enableCloudAgents": {
+            "value": "vm"
+        },
+        "vnetName": {
+            "value": "jenkins-vnet"
+        },
+        "vnetResourceGroup": {
+            "value": "jenkinsupskilling"
+        },
+        "vnetAddressPrefix": {
+            "value": "10.0.0.0/16"
+        },
+        "vnetNewOrExisting": {
+            "value": "new"
+        },
+        "subnetName": {
+            "value": "jenkins"
+        },
+        "subnetAddressPrefix": {
+            "value": "10.0.0.0/24"
+        }
+    }
+}
