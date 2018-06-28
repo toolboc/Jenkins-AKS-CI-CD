@@ -9,6 +9,32 @@ The goal of CI is to establish a consistent and automated way to build, package,
 
 What this pattern aims to do is to define a general CI/CD pipeline for scalable solutions that require containers orchestration.
 
+## Quickstart
+To get started, deploy a jenkins VM by following this [guide](https://docs.microsoft.com/en-us/azure/jenkins/install-jenkins-solution-template).  After the Jenkins server is deployed, login and execute `az login` and set your desired subscription.  If the azure cli is not installed on the machine, you may need to run [azure-cli-install.sh](./scripts/azure-cli-install.sh.).  Once you have completed the `az login` process, run [setup.sh](./scripts/setup.sh) on the jenkins server to deploy a k8s cluster and install all required server dependencies. 
+
+After completing the steps above, if you wish to use the sample [Jenkinsfile](./Jenkinsfile) in a Jenkins pipeline, start by creating an Azure container registry by following this [guide](https://docs.microsoft.com/en-us/azure/container-registry/).  Once created, replace the values in the Jenkinsfile for `ACR_LOGINSERVER` (note: this value needs to be changed in *two* locations within the Jenkinsfile),`ACR_ID`, `ACR_PASSWORD` & `KUBE_CONTEXT` (set to value of: *k8sClusterName* from setup.sh).  Next, create a new pipeline project and copy over the contents of the modified Jenkinsfile.  You should be able to successfully deploy the azure-voting-app-redis helm chart to your K8s cluster by kicking off a build of your new pipeline project.  
+
+Next, run the following on the jenkins server to add a secret for pulling your image from ACR to your k8s deployment:
+
+	kubectl create secret -n azure-voting-app-redis docker-registry regcred --docker-server=$ACR_LOGINSERVER --docker-username=$ACR_ID --docker-password=$ACR_PASSWORD --docker-email=myemail@contoso.com
+
+To verify your deployment is accessbile over the internet, run:
+
+	kubectl get --all-namespaces svc
+
+You should see an output similar to:
+
+	NAMESPACE                NAME                     TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)          AGE
+	azure-voting-app-redis   azure-vote-back          ClusterIP      10.0.107.198   <none>           6379/TCP         24m
+	azure-voting-app-redis   azure-voting-app-redis   LoadBalancer   10.0.33.36     40.121.149.238   8080:31797/TCP   24m
+	default                  kubernetes               ClusterIP      10.0.0.1       <none>           443/TCP          1h
+	kube-system              heapster                 ClusterIP      10.0.123.33    <none>           80/TCP           1h
+	kube-system              kube-dns                 ClusterIP      10.0.0.10      <none>           53/UDP,53/TCP    1h
+	kube-system              kubernetes-dashboard     ClusterIP      10.0.248.20    <none>           80/TCP           1h
+	kube-system              tiller-deploy            ClusterIP      10.0.94.105    <none>           44134/TCP        57m
+
+In this case, our service would be accessbile at http://40.121.149.238:8080
+
 ## Architecture Overview
 
 ![General Architecture](/images/general-architecture.JPG)
@@ -51,6 +77,16 @@ Server Dependencies:
 [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-cluster)
 
 ### Installing Jenkins Server Dependencies 
+
+Install azure-cli
+	AZ_REPO=$(lsb_release -cs)
+	echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+		sudo tee /etc/apt/sources.list.d/azure-cli.list
+
+	curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+
+	sudo apt-get install apt-transport-https
+	sudo apt-get update && sudo apt-get install -y azure-cli
 
 Install Docker
 
@@ -159,14 +195,16 @@ Install Helm
 						#Azure Container Registry config
 						REPO_NAME="azure-voting-app-redis"
 						ACR_LOGINSERVER="myrepo.azurecr.io"
-						IMAGE_NAME="${ACR_LOGINSERVER}/$REPO_NAME:jenkins${BUILD_NUMBER}"
+                        ACR_ID="myACRid"
+                        ACR_PASSWORD="myACRpassword"
+						IMAGE_NAME="$ACR_LOGINSERVER/$REPO_NAME:jenkins${BUILD_NUMBER}"
 
 						#Docker build and push to Azure Container Registry
 						cd ./azure-vote
 						docker build -t $IMAGE_NAME .
 						cd ..
 						
-						docker login ${ACR_LOGINSERVER} -u ${ACR_ID} -p ${ACR_PASSWORD}
+						docker login $ACR_LOGINSERVER -u $ACR_ID -p $ACR_PASSWORD
 						docker push $IMAGE_NAME
 						'''
 				}
@@ -174,20 +212,24 @@ Install Helm
 			stage ('Helm Deploy to K8s'){
 				steps{
 						sh '''
-						#HELM config
+                        #Docker Repo Config
+						REPO_NAME="azure-voting-app-redis"
+						ACR_LOGINSERVER="myrepo.azurecr.io"
+
+                    	#HELM config
 						NAME="azure-voting-app-redis"
 						HELM_CHART="./helm/azure-voting-app-redis"
 						
 						#Kubenetes config (for safety, in order to make sure it runs in the selected K8s context)
-						KUBE_CONTEXT="jenkinsupskillingcluster"
+						KUBE_CONTEXT="jenkins-k8s-azure"
 						kubectl config --kubeconfig=/var/lib/jenkins/.kube/config view
 						kubectl config set-context $KUBE_CONTEXT
 						
 						#Helm Deployment
-						helm --kube-context $KUBE_CONTEXT upgrade --install --force $NAME $HELM_CHART --set image.repository=${ACR_LOGINSERVER}/$REPO_NAME --set image.tag=jenkins${BUILD_NUMBER} 
+						helm --kube-context $KUBE_CONTEXT upgrade --install --force $NAME $HELM_CHART --set image.repository=$ACR_LOGINSERVER/$REPO_NAME --set image.tag=jenkins${BUILD_NUMBER} 
 						
 						#If credentials are required for pulling docker image, supply the credentials to AKS by running the following:
-						#kubectl create secret -n $NAME docker-registry regcred --docker-server=${ACR_LOGINSERVER} --docker-username=${ACR_ID} --docker-password=${ACR_PASSWORD} --docker-email=myemail@contoso.com
+						#kubectl create secret -n $NAME docker-registry regcred --docker-server=$ACR_LOGINSERVER --docker-username=$ACR_ID --docker-password=$ACR_PASSWORD --docker-email=myemail@contoso.com
 						'''
 					}
 			}	
@@ -199,3 +241,13 @@ Install Helm
 			}
 		}
 	}
+
+### Obtaining the load balancer ip and port after deployment to k8s
+	IP_ADDRESS=$(kubectl get svc $NAME -n $NAME -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+	while [ $IP_ADDRESS -ne "<pending>" ]
+	do
+		IP_ADDRESS=$(kubectl get svc $NAME -n $NAME -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+		sleep 60s
+	done	
+
+	PORT=$(kubectl get svc node --namespace=node -o json | jq '.spec.ports[0].port')
