@@ -136,6 +136,13 @@ Install Helm
 	sudo mv linux-amd64/helm /usr/local/bin/helm
 	sudo helm init
 
+Initializing Helm
+	
+	#When installing Tiller, 'helm init' will attempt to install the latest released version. You can specify an alternative image with '--tiller-image' or -i
+	#To install a specific version of Tiller use `helm init -i gcr.io/kubernetes-helm/tiller:vX.X`. 
+	#To install latest version of Tiller use the syntax below:
+	sudo helm init
+
 ### Jenkins 'Execute shell' Commands for Freestyle Project
 
 ![Pipeline](/images/freestyle.JPG)
