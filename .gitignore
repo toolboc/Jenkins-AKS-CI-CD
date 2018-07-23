@@ -1,3 +1,4 @@
 src/terraform/secrets.tfvars
 src/terraform/terraform.tfstate
+src/terraform/terraform.tfstate.backup
 src/terraform/.terraform/plugins/linux_amd64/lock.json

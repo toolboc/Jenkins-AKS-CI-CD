@@ -10,9 +10,58 @@ The goal of CI is to establish a consistent and automated way to build, package,
 What this pattern aims to do is to define a general CI/CD pipeline for scalable solutions that require containers orchestration.
 
 ## Quickstart
+
+We provided two different ways to create the resurces on your Azure Subscription:
+
++ Manualy: You have to create all the resources needed, using arm templates, powershell or even using the portal an them change the configuration files.
++ Using [Terraform](https://www.terraform.io) that will create the resources needed, Jenkins Server and AKS.
+
+### Manually
+
 To get started, deploy a jenkins VM by following this [guide](https://docs.microsoft.com/en-us/azure/jenkins/install-jenkins-solution-template).  After the Jenkins server is deployed, login and execute `az login` and set your desired subscription.  If the azure cli is not installed on the machine, you may need to run [azure-cli-install.sh](./scripts/azure-cli-install.sh.).  Once you have completed the `az login` process, run [setup.sh](./scripts/setup.sh) on the jenkins server to deploy a k8s cluster and install all required server dependencies. 
 
 After completing the steps above, if you wish to use the sample [Jenkinsfile](./Jenkinsfile) in a Jenkins pipeline, start by creating an Azure container registry by following this [guide](https://docs.microsoft.com/en-us/azure/container-registry/).  Once created, replace the values in the Jenkinsfile for `ACR_LOGINSERVER` (note: this value needs to be changed in *two* locations within the Jenkinsfile),`ACR_ID`, `ACR_PASSWORD` & `KUBE_CONTEXT` (set to value of: *k8sClusterName* from setup.sh).  Next, create a new pipeline project and copy over the contents of the modified Jenkinsfile.  You should be able to successfully deploy the azure-voting-app-redis helm chart to your K8s cluster by kicking off a build of your new pipeline project.  
+
+### Terraform
+
+Using Terraform need to have installed in your machine (not the server) that Azure-Cli, you can use the script [azure-cli-install.sh](./scripts/azure-cli-install.sh.) and them execute `az login`. Check if you are connect to the right subscription using `az account list -o table` check [az account](https://docs.microsoft.com/en-us/cli/azure/account?view=azure-cli-latest) for more information.
+
+Terraform need to be installed as well and there are options for Windows and Linux, here we are covering the usage of Linux as you can use WLS ([Windows Linux Subsystem](https://docs.microsoft.com/en-us/windows/wsl/install-win10)). The script we have provided checks if the Terraform is available in your system, installing it if is not.
+
+Run the script [create_azure_resources.sh](./scripts/create_azure_resources.sh), this script will do the following:
+
++ Create an Azure Resource Group
++ Create a Virtual Network
++ Create a Subnet
++ Create a Public IP Address
++ Create a Network Interface attached to the subnet and using the Public IP Address
++ Create a Network Security Group, with two rules Allow SSH (over port 22)and Allow Http (over port 8080)
++ Create an Ubuntu Server
++ Create an Azure Kuberntes Service
+
+The itens above will be create by Terraform, using the following commands.
+
+``` bash
+#terraform will create the Jenkins VM, AKS Cluster and set the jenkins vm to use the AKS Cluster.
+#Initialize terraform project
+terraform init
+
+#Apply the changes, we are using a secrets.tfvars to provide sensitive information
+terraform apply -var-file=secrets.tfvars
+```
+
+The other part of the script will setup the Linux Server, installing:
+
++ Java VM
++ Jenkins
++ Kubectl
++ Helm
+
+for that we are using
+
+``` bash
+ssh `eval terraform output admin_username`@`eval terraform output jenkins_pip` 'bash -s' < ../../scripts/setup_jenkins.sh
+```
 
 Next, run the following on the jenkins server to add a secret for pulling your image from ACR to your k8s deployment:
 
