@@ -73,7 +73,7 @@ ssh `eval terraform output admin_username`@`eval terraform output jenkins_pip` '
 ```
 ## Using the sample configuration
 
-After completing the steps above, if you wish to use the sample [Jenkinsfile](./Jenkinsfile) in a Jenkins pipeline, start by creating an Azure container registry by following this [guide](https://docs.microsoft.com/en-us/azure/container-registry/).  Once created, replace the values in the Jenkinsfile for `ACR_LOGINSERVER` (note: this value needs to be changed in *two* locations within the Jenkinsfile),`ACR_ID`, `ACR_PASSWORD` & `KUBE_CONTEXT` (set to value of: *k8sClusterName* from setup.sh).  Next, create a new pipeline project and copy over the contents of the modified Jenkinsfile.  You should be able to successfully deploy the azure-voting-app-redis helm chart to your K8s cluster by kicking off a build of your new pipeline project.  
+After completing the steps above, if you wish to use the sample [Jenkinsfile](./Jenkinsfile) in a Jenkins pipeline, start by creating an Azure container registry by following this [guide](https://docs.microsoft.com/en-us/azure/container-registry/).  Once created, replace the values in the Jenkinsfile `KUBE_CONTEXT` (set to value of: *k8sClusterName* from setup.sh).  Next, create a Global Credential in Jenkins for `ACR_ID`, `ACR_LOGINSERVER`, and `ACR_PASSWORD` and supply the appropriate values respectively. Finally, create a new pipeline project and copy over the contents of the modified Jenkinsfile.  You should be able to successfully deploy the azure-voting-app-redis helm chart to your K8s cluster by kicking off a build of your new pipeline project.  
 
 Next, run the following on the jenkins server to add a secret for pulling your image from ACR to your k8s deployment:
 
@@ -229,7 +229,13 @@ Initializing Helm
 	pipeline {
 		
 		agent any
-
+    		
+		environment {
+        		ACR_LOGINSERVER = credentials('ACR_LOGINSERVER')
+        		ACR_ID = credentials('ACR_ID')
+			ACR_PASSWORD = credentials('ACR_PASSWORD')
+    		}
+		
 		stages {
 			
 			stage ('azure-voting-app-redis - Checkout') {
