@@ -184,7 +184,6 @@ Install Helm
 	wget https://storage.googleapis.com/kubernetes-helm/helm-v2.9.1-linux-amd64.tar.gz
 	tar -xzvf helm-v2.9.1-linux-amd64.tar.gz
 	sudo mv linux-amd64/helm /usr/local/bin/helm
-	sudo helm init
 
 Initializing Helm
 	
@@ -258,8 +257,8 @@ Initializing Helm
 						#Azure Container Registry config
 						REPO_NAME="azure-voting-app-redis"
 						ACR_LOGINSERVER="myrepo.azurecr.io"
-                        ACR_ID="myACRid"
-                        ACR_PASSWORD="myACRpassword"
+						ACR_ID="myACRid"
+						ACR_PASSWORD="myACRpassword"
 						IMAGE_NAME="$ACR_LOGINSERVER/$REPO_NAME:jenkins${BUILD_NUMBER}"
 
 						#Docker build and push to Azure Container Registry
