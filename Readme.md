@@ -29,13 +29,13 @@ We provided two different ways to create the necessary resources on your Azure S
 
 ### Manually
 
-To get started, deploy a jenkins VM by following this [guide](https://docs.microsoft.com/en-us/azure/jenkins/install-jenkins-solution-template).  After the Jenkins server is deployed, login and execute `az login` and set your desired subscription.  If the azure cli is not installed on the machine, you may need to run [azure-cli-install.sh](./scripts/azure-cli-install.sh.).  Once you have completed the `az login` process, run [setup.sh](./scripts/setup.sh) on the jenkins server to deploy a k8s cluster and install all required server dependencies. 
+To get started, deploy a jenkins VM by following this [guide](https://docs.microsoft.com/azure/jenkins/install-jenkins-solution-template?WT.mc_id=iot-0000-pdecarlo).  After the Jenkins server is deployed, login and execute `az login` and set your desired subscription.  If the azure cli is not installed on the machine, you may need to run [azure-cli-install.sh](./scripts/azure-cli-install.sh.).  Once you have completed the `az login` process, run [setup.sh](./scripts/setup.sh) on the jenkins server to deploy a k8s cluster and install all required server dependencies. 
 
 ### Terraform
 
-You will need to have Terraform installed on a client machine (not the server). You will also need to [install the Azure-Cli](./scripts/azure-cli-install.sh.) and configure with `az login`. Verify that you are connected to the right subscription using `az account list -o table`.  See [az account](https://docs.microsoft.com/en-us/cli/azure/account?view=azure-cli-latest) for more information.
+You will need to have Terraform installed on a client machine (not the server). You will also need to [install the Azure-Cli](./scripts/azure-cli-install.sh.) and configure with `az login`. Verify that you are connected to the right subscription using `az account list -o table`.  See [az account](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest&WT.mc_id=iot-0000-pdecarlo) for more information.
 
-Terraform needs to be installed on either Windows and Linux.  Here we are covering the usage of Linux as you can use WSL ([Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)). The script we have provided checks if Terraform is available on your system, and will install it if not.
+Terraform needs to be installed on either Windows and Linux.  Here we are covering the usage of Linux as you can use WSL ([Windows Subsystem for Linux](https://docs.microsoft.com/windows/wsl/install-win10?WT.mc_id=iot-0000-pdecarlo)). The script we have provided checks if Terraform is available on your system, and will install it if not.
 
 Run the script [create_azure_resources.sh](./scripts/create_azure_resources.sh), this script will do the following:
 
@@ -73,7 +73,7 @@ ssh `eval terraform output admin_username`@`eval terraform output jenkins_pip` '
 ```
 ## Using the sample configuration
 
-After completing the steps above, if you wish to use the sample [Jenkinsfile](./Jenkinsfile) in a Jenkins pipeline, start by creating an Azure container registry by following this [guide](https://docs.microsoft.com/en-us/azure/container-registry/).  Once created, replace the values in the Jenkinsfile `KUBE_CONTEXT` (set to value of: *k8sClusterName* from setup.sh).  Next, create a Global Credential in Jenkins for `ACR_ID`, `ACR_LOGINSERVER`, and `ACR_PASSWORD` and supply the appropriate values respectively. Finally, create a new pipeline project and copy over the contents of the modified Jenkinsfile.  You should be able to successfully deploy the azure-voting-app-redis helm chart to your K8s cluster by kicking off a build of your new pipeline project.  
+After completing the steps above, if you wish to use the sample [Jenkinsfile](./Jenkinsfile) in a Jenkins pipeline, start by creating an Azure container registry by following this [guide](https://docs.microsoft.com/azure/container-registry/?WT.mc_id=iot-0000-pdecarlo).  Once created, replace the values in the Jenkinsfile `KUBE_CONTEXT` (set to value of: *k8sClusterName* from setup.sh).  Next, create a Global Credential in Jenkins for `ACR_ID`, `ACR_LOGINSERVER`, and `ACR_PASSWORD` and supply the appropriate values respectively. Finally, create a new pipeline project and copy over the contents of the modified Jenkinsfile.  You should be able to successfully deploy the azure-voting-app-redis helm chart to your K8s cluster by kicking off a build of your new pipeline project.  
 
 Next, run the following on the jenkins server to add a secret for pulling your image from ACR to your k8s deployment:
 
@@ -100,10 +100,10 @@ In this case, our service would be accessbile at http://40.121.149.238:8080
 ### Prerequisites
 
 Azure resources:
-+ [Jenkins VM](https://docs.microsoft.com/en-us/azure/jenkins/)
++ [Jenkins VM](https://docs.microsoft.com/azure/jenkins/?WT.mc_id=iot-0000-pdecarlo)
 + Service Principal
-+ [Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/)
-+ [AKS (Kubernetes Cluster)](https://docs.microsoft.com/en-us/azure/aks/)
++ [Azure Container Registry](https://docs.microsoft.com/azure/container-registry/?WT.mc_id=iot-0000-pdecarlo)
++ [AKS (Kubernetes Cluster)](https://docs.microsoft.com/azure/aks/?WT.mc_id=iot-0000-pdecarlo)
 
 Server Dependencies:
 
@@ -115,25 +115,25 @@ Server Dependencies:
 
 ### Deploying Jenkins VM 
 
-[Jenkins VM Azure Doc](https://docs.microsoft.com/en-us/azure/jenkins/install-jenkins-solution-template)
+[Jenkins VM Azure Doc](https://docs.microsoft.com/azure/jenkins/install-jenkins-solution-template?WT.mc_id=iot-0000-pdecarlo)
 
 ### Creating Azure Container Registry
 
-[Creating Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal)
+[Creating Azure Container Registry](https://docs.microsoft.com/azure/container-registry/container-registry-get-started-portal?WT.mc_id=iot-0000-pdecarlo)
 
 ### Deploying Kubernetes Cluster
 
-[Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-cluster)
+[Azure Kubernetes Service](https://docs.microsoft.com/azure/aks/tutorial-kubernetes-deploy-cluster?WT.mc_id=iot-0000-pdecarlo)
 
 ### Installing Jenkins Server Dependencies 
 
 Install azure-cli
 	
 	AZ_REPO=$(lsb_release -cs)
-	echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+	echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/?WT.mc_id=iot-0000-pdecarlo $AZ_REPO main" | \
 		sudo tee /etc/apt/sources.list.d/azure-cli.list
 
-	curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+	curl -L https://packages.microsoft.com/keys/microsoft.asc?WT.mc_id=iot-0000-pdecarlo | sudo apt-key add -
 
 	sudo apt-get install apt-transport-https
 	sudo apt-get update && sudo apt-get install -y azure-cli
